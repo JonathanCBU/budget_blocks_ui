@@ -1,32 +1,23 @@
+// src/components/budget/CreateBudgetForm.tsx
 import { useState } from "react";
 import { TextInput, Button, Paper, Stack, Notification } from "@mantine/core";
 import { IconCheck, IconX } from "@tabler/icons-react";
-import { budgetApi } from "../../services/api";
+import { useCreateBudget } from "../../hooks/useBudget";
 
-interface CreateBudgetFormProps {
-  onBudgetCreated?: () => void;
-}
-
-export function CreateBudgetForm({ onBudgetCreated }: CreateBudgetFormProps) {
+export function CreateBudgetForm() {
   const [budgetName, setBudgetName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const createBudget = useCreateBudget();
 
   const handleCreateBudget = async () => {
-    setLoading(true);
-    setSuccess(null);
-    setError(null);
-
     try {
-      const id = await budgetApi.create({ name: budgetName });
-      setSuccess(`Budget created successfully! ID: ${id}`);
+      await createBudget.mutateAsync({ name: budgetName });
       setBudgetName("");
-      onBudgetCreated?.();
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
+      // Error is handled by React Query
     }
   };
 
@@ -42,29 +33,31 @@ export function CreateBudgetForm({ onBudgetCreated }: CreateBudgetFormProps) {
 
         <Button
           onClick={handleCreateBudget}
-          loading={loading}
+          loading={createBudget.isPending}
           disabled={!budgetName.trim()}
         >
           Create Budget
         </Button>
 
-        {success && (
+        {showSuccess && (
           <Notification
             icon={<IconCheck size={18} />}
             color="green"
-            onClose={() => setSuccess(null)}
+            onClose={() => setShowSuccess(false)}
           >
-            {success}
+            Budget created successfully!
           </Notification>
         )}
 
-        {error && (
+        {createBudget.isError && (
           <Notification
             icon={<IconX size={18} />}
             color="red"
-            onClose={() => setError(null)}
+            onClose={() => createBudget.reset()}
           >
-            {error}
+            {createBudget.error instanceof Error
+              ? createBudget.error.message
+              : "An error occurred"}
           </Notification>
         )}
       </Stack>
