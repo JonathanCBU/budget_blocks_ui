@@ -1,125 +1,54 @@
-import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import {
-  Container,
-  Title,
-  TextInput,
-  Button,
-  Stack,
-  Paper,
-  Notification,
-} from "@mantine/core";
-import { IconCheck, IconX } from "@tabler/icons-react";
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { ThemeProvider } from "@/components/theme_select/theme-provider";
+import { ModeToggle } from "@/components/theme_select/mode-toggle";
+import Tags from "@/pages/tags";
+import Items from "@/pages/items";
+
+const navItems = [
+  { title: "Tags", url: "/" },
+  { title: "Items", url: "/items" },
+];
 
 function App() {
-  const [budgetName, setBudgetName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleCreateBudget = async () => {
-    setLoading(true);
-    setSuccess(null);
-    setError(null);
-
-    try {
-      const response = await fetch("http://127.0.0.1:8080/budget/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: budgetName }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create budget");
-      }
-
-      const data = await response.json();
-      setSuccess(`Budget created successfully! ID: ${data.data}`);
-      setBudgetName("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLoadBudgets = async () => {
-    setLoading(true);
-    setSuccess(null);
-    setError(null);
-
-    try {
-      const response = await fetch("http://127.0.0.1:8080/budget/get-all", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get all budgets");
-      }
-
-      const data = await response.json();
-      setSuccess(`Budget created successfully! ID: ${data.data}`);
-      setBudgetName("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    handleLoadBudgets();
-  }, []);
-
   return (
-    <Container size="sm" mt="xl">
-      <Title order={1} mb="xl">
-        Budget Blocks
-      </Title>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <BrowserRouter>
+        <header className="border-b">
+          <div className="flex h-14 items-center justify-between px-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {navItems.map((item) => (
+                  <NavigationMenuItem key={item.url}>
+                    <NavigationMenuLink
+                      render={<Link to={item.url} />}
+                      className={navigationMenuTriggerStyle()}
+                    >
+                      {item.title}
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
 
-      <Paper shadow="sm" p="xl" withBorder>
-        <Stack>
-          <TextInput
-            label="Budget Name"
-            placeholder="Enter budget name"
-            value={budgetName}
-            onChange={(e) => setBudgetName(e.currentTarget.value)}
-          />
+            <ModeToggle />
+          </div>
+        </header>
 
-          <Button
-            onClick={handleCreateBudget}
-            loading={loading}
-            disabled={!budgetName.trim()}
-          >
-            Create Budget
-          </Button>
-
-          {success && (
-            <Notification
-              icon={<IconCheck size={18} />}
-              color="green"
-              onClose={() => setSuccess(null)}
-            >
-              {success}
-            </Notification>
-          )}
-
-          {error && (
-            <Notification
-              icon={<IconX size={18} />}
-              color="red"
-              onClose={() => setError(null)}
-            >
-              {error}
-            </Notification>
-          )}
-        </Stack>
-      </Paper>
-    </Container>
+        <main className="p-4">
+          <Routes>
+            <Route path="/" element={<Tags />} />
+            <Route path="/items" element={<Items />} />
+          </Routes>
+        </main>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
