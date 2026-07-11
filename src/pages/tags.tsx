@@ -1,82 +1,73 @@
-import { useReducer } from "react";
-import { Plus, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useBulkList } from "@/hooks/use-bulk-list";
+import { useTags } from "@/hooks/use-tags";
+import { DynamicBulkForm } from "@/components/common/dynamic-bulk-form";
 import { createTagsBulk } from "@/api/request/tags";
+import type { FieldConfig } from "@/types/field-config";
+import { Typography } from "@/components/common/typography";
+import { useEffect } from "react";
 
-type TagField = {
+type TagFormItem = {
   id: string;
-  value: string;
+  name: string;
 };
 
-type TagAction =
-  | { type: "add" }
-  | { type: "remove"; id: string }
-  | { type: "update"; id: string; value: string };
-
-function tagsReducer(state: TagField[], action: TagAction): TagField[] {
-  switch (action.type) {
-    case "add":
-      return [...state, { id: crypto.randomUUID(), value: "" }];
-    case "remove":
-      return state.filter((tag) => tag.id !== action.id);
-    case "update":
-      return state.map((tag) =>
-        tag.id === action.id ? { ...tag, value: action.value } : tag,
-      );
-    default:
-      return state;
-  }
+function createEmptyTag(): TagFormItem {
+  return { id: crypto.randomUUID(), name: "" };
 }
 
+const fields: FieldConfig<TagFormItem>[] = [
+  { type: "text", key: "name", label: "Tag name", placeholder: "Tag name" },
+];
+
 export default function Tags() {
-  const [tags, dispatch] = useReducer(tagsReducer, [
-    { id: crypto.randomUUID(), value: "" },
-  ]);
+  const { items, add, remove, update, reset } = useBulkList(createEmptyTag);
+  const { tags, loading, error, invalidate } = useTags();
+
+  useEffect(() => {
+    console.log("TAGS", tags);
+  }, [tags]);
 
   async function handleSubmit() {
-    const values = tags.map((tag) => tag.value.trim()).filter(Boolean);
-    if (values.length === 0) return;
+    const names = items.map((item) => item.name.trim()).filter(Boolean);
+    if (names.length === 0) return;
 
     try {
-      await createTagsBulk(values);
+      await createTagsBulk(names);
+      reset();
+      invalidate();
     } catch (err) {
       console.error("Failed to create tags:", err);
     }
   }
 
   return (
-    <div className="flex flex-col gap-4 max-w-sm">
-      <h1 className="text-2xl font-bold">Tags</h1>
-
-      <div className="flex flex-col gap-2">
-        {tags.map((tag) => (
-          <div key={tag.id} className="flex items-center gap-2">
-            <Input
-              placeholder="Tag name"
-              value={tag.value}
-              onChange={(e) =>
-                dispatch({ type: "update", id: tag.id, value: e.target.value })
-              }
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => dispatch({ type: "remove", id: tag.id })}
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Remove tag</span>
-            </Button>
-          </div>
-        ))}
+    <div className="flex gap-8">
+      <div className="flex flex-col gap-4 max-w-sm">
+        <Typography id="title" type="h2" text="Create Tags" />
+        <DynamicBulkForm
+          items={items}
+          fields={fields}
+          onAdd={add}
+          onRemove={remove}
+          onUpdate={update}
+          onSubmit={handleSubmit}
+          addLabel="Add Tag"
+        />
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button variant="outline" onClick={() => dispatch({ type: "add" })}>
-          <Plus className="h-4 w-4" />
-          Add Tag
-        </Button>
-        <Button onClick={handleSubmit}>Submit</Button>
+      <div className="flex flex-col gap-2 max-w-xs">
+        <Typography id="existing-tags" type="h2" text="Existing Tags" />
+        {loading && <Typography text="Loading..." type="muted" />}
+        {error && <Typography text={error} type="error" />}
+        {!loading && !error && tags && (
+          <ul className="flex flex-col gap-1">
+            {tags.map((tag) => (
+              <li key={tag.ID} className="text-sm border-b pb-1">
+                {tag.name}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
