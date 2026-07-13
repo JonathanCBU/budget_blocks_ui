@@ -1,4 +1,4 @@
 export type ListItemConfig<T> =
-  | { type: "title"; key: keyof T; text: string }
-  | { type: "body"; key: keyof T; text: string }
-  | { type: "number"; key: keyof T; text: string; symbol?: string };
+  | { type: "title"; key: keyof T }
+  | { type: "body"; key: keyof T }
+  | { type: "number"; key: keyof T; symbol?: string };

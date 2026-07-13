@@ -1,5 +1,10 @@
 import { apiPost } from "../api-client";
-import type { CreateTagsBulkRequest, Tags } from "../dto/tag";
+import type {
+  CreateTagsBulkRequest,
+  Tags,
+  DeleteTagsBulkRequest,
+  DeleteTagsBulkResponse,
+} from "../dto/tag";
 
 const TagBaseUrl = "tag/";
 
@@ -13,4 +18,12 @@ export function createTagsBulk(names: string[]) {
 
 export function getAllTags() {
   return apiPost<Record<string, never>, Tags>(`${TagBaseUrl}get-all`, {});
+}
+
+export function deleteTagsBulk(ids: number[]) {
+  const body: DeleteTagsBulkRequest = { ids };
+  return apiPost<DeleteTagsBulkRequest, DeleteTagsBulkResponse>(
+    `${TagBaseUrl}delete-bulk`,
+    body,
+  );
 }

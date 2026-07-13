@@ -18,3 +18,11 @@ export type Tag = {
 export type Tags = {
   tags: Tag[];
 };
+
+export type DeleteTagsBulkRequest = {
+  ids: number[]
+}
+
+export type DeleteTagsBulkResponse = {
+  deleted_count: number
+}

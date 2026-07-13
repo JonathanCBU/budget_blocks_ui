@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { FieldConfig } from "@/types/field-config";
+import { Container } from "./container";
 
 type BaseItem = { id: string } & Record<string, unknown>;
 
@@ -36,8 +37,8 @@ export function DynamicBulkForm<T extends BaseItem>({
   isSubmitting = false,
 }: DynamicBulkFormProps<T>) {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3">
+    <Container gap={4}>
+      <Container gap={3}>
         {items.map((item) => (
           <div key={item.id} className="flex items-end gap-2">
             {fields.map((field) => {
@@ -91,9 +92,9 @@ export function DynamicBulkForm<T extends BaseItem>({
             </Button>
           </div>
         ))}
-      </div>
+      </Container>
 
-      <div className="flex items-center gap-2">
+      <Container gap={2}>
         <Button variant="outline" onClick={onAdd}>
           <Plus className="h-4 w-4" />
           {addLabel}
@@ -101,7 +102,7 @@ export function DynamicBulkForm<T extends BaseItem>({
         <Button onClick={onSubmit} disabled={isSubmitting}>
           {isSubmitting ? "Submitting..." : submitLabel}
         </Button>
-      </div>
-    </div>
+      </Container>
+    </Container>
   );
 }
