@@ -9,11 +9,13 @@ import {
 import { ThemeProvider } from "@/components/theme_select/theme-provider";
 import { ModeToggle } from "@/components/theme_select/mode-toggle";
 import Tags from "@/pages/tags";
-import Items from "@/pages/items";
+import Buckets from "@/pages/buckets";
+import Transactions from "@/pages/transactions";
 
 const navItems = [
   { title: "Tags", url: "/" },
-  { title: "Items", url: "/items" },
+  { title: "Buckets", url: "/buckets" },
+  { title: "Transactions", url: "/transactions" },
 ];
 
 function App() {
@@ -44,7 +46,8 @@ function App() {
         <main className="p-4">
           <Routes>
             <Route path="/" element={<Tags />} />
-            <Route path="/items" element={<Items />} />
+            <Route path="/buckets" element={<Buckets />} />
+            <Route path="/transactions" element={<Transactions />} />
           </Routes>
         </main>
       </BrowserRouter>

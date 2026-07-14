@@ -10,6 +10,15 @@ import {
 } from "@/components/ui/select";
 import type { FieldConfig } from "@/types/field-config";
 import { Container } from "./container";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 type BaseItem = { id: string } & Record<string, unknown>;
 
@@ -44,6 +53,44 @@ export function DynamicBulkForm<T extends BaseItem>({
             {fields.map((field) => {
               const value = String(item[field.key] ?? "");
 
+              if (field.type === "date") {
+                const dateValue = value
+                  ? new Date(value + "T00:00:00")
+                  : undefined;
+
+                return (
+                  <Popover key={String(field.key)}>
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-[180px] justify-start text-left font-normal",
+                            !dateValue && "text-muted-foreground",
+                          )}
+                        />
+                      }
+                    >
+                      <CalendarIcon className="h-4 w-4" />
+                      {dateValue ? format(dateValue, "PPP") : field.label}
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={dateValue}
+                        onSelect={(date) =>
+                          onUpdate(
+                            item.id,
+                            field.key,
+                            date ? format(date, "yyyy-MM-dd") : "",
+                          )
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
+                );
+              }
+
               if (field.type === "select") {
                 return (
                   <Select
@@ -71,11 +118,7 @@ export function DynamicBulkForm<T extends BaseItem>({
                 <Input
                   key={String(field.key)}
                   type={field.type}
-                  placeholder={
-                    field.type === "date"
-                      ? undefined
-                      : (field.placeholder ?? field.label)
-                  }
+                  placeholder={field.placeholder ?? field.label}
                   value={value}
                   onChange={(e) => onUpdate(item.id, field.key, e.target.value)}
                 />
