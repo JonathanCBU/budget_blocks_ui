@@ -11,9 +11,11 @@ import { ModeToggle } from "@/components/theme_select/mode-toggle";
 import Tags from "@/pages/tags";
 import Buckets from "@/pages/buckets";
 import Transactions from "@/pages/transactions";
+import Home from "@/pages/home";
 
 const navItems = [
-  { title: "Tags", url: "/" },
+  { title: "Home", url: "/" },
+  { title: "Tags", url: "/tags" },
   { title: "Buckets", url: "/buckets" },
   { title: "Transactions", url: "/transactions" },
 ];
@@ -45,7 +47,8 @@ function App() {
 
         <main className="p-4">
           <Routes>
-            <Route path="/" element={<Tags />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/tags" element={<Tags />} />
             <Route path="/buckets" element={<Buckets />} />
             <Route path="/transactions" element={<Transactions />} />
           </Routes>

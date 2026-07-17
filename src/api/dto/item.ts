@@ -25,6 +25,17 @@ export type Item = {
   date: string;
 };
 
-export type CreateItemsBulkResponse = {
+export type ItemsResponse = {
   items: Item[];
+};
+
+export type GetItemsByDateRequest = {
+  start_date: string;
+  end_date: string;
+};
+
+export type GetItemsByTagAndOrDateRequest = {
+  tag_ids?: number[];
+  start_date?: string;
+  end_date?: string;
 };
