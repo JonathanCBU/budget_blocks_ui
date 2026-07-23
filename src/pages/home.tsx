@@ -23,6 +23,16 @@ import { getItemsByTagAndOrDate } from "@/api/request/items";
 import { ApiError } from "@/api/api-client";
 import type { Item } from "@/api/dto/item";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 type RangeOption = "7" | "14" | "30" | "custom";
 
@@ -32,6 +42,15 @@ const RANGE_LABELS: Record<RangeOption, string> = {
   "30": "Last 30 days",
   custom: "Custom range",
 };
+
+function TagColorDot({ color }: { color: string }) {
+  return (
+    <span
+      className="inline-block h-3 w-3 rounded-full border"
+      style={{ backgroundColor: color }}
+    />
+  );
+}
 
 export default function Home() {
   const { tags } = useTags();
@@ -180,30 +199,55 @@ export default function Home() {
 
         <Container gap={2}>
           <Typography type="muted" text="Filter by tag" />
-          <Container direction="row" gap={2} className="flex-wrap">
-            {tags.map((tag) => {
-              const isSelected = selectedTagIds.has(tag.ID);
-              return (
-                <Badge
-                  key={tag.ID}
-                  variant={isSelected ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => toggleTag(tag.ID)}
-                >
-                  {tag.name}
-                </Badge>
-              );
-            })}
-            {selectedTagIds.size > 0 && (
-              <Badge
-                variant="secondary"
-                className="cursor-pointer"
-                onClick={() => setSelectedTagIds(new Set())}
-              >
-                Clear tags
-              </Badge>
-            )}
-          </Container>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  className="w-[220px] justify-between"
+                />
+              }
+            >
+              {selectedTagIds.size === 0
+                ? "All tags"
+                : `${selectedTagIds.size} tag${selectedTagIds.size === 1 ? "" : "s"} selected`}
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[220px]">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Tags</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {tags.map((tag) => (
+                  <DropdownMenuCheckboxItem
+                    key={tag.ID}
+                    checked={selectedTagIds.has(tag.ID)}
+                    onCheckedChange={() => toggleTag(tag.ID)}
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <span className="flex items-center gap-2">
+                      <TagColorDot color={tag.color} />
+                      {tag.name}
+                    </span>
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuGroup>
+
+              {selectedTagIds.size > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuCheckboxItem
+                      checked={false}
+                      onCheckedChange={() => setSelectedTagIds(new Set())}
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      Clear all
+                    </DropdownMenuCheckboxItem>
+                  </DropdownMenuGroup>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </Container>
 
         {loading && <Typography type="muted" text="Loading..." />}

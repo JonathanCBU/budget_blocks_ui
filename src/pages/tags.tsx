@@ -13,20 +13,23 @@ import type { ListItemConfig } from "@/types/list-item-config";
 type TagFormItem = {
   id: string;
   name: string;
-};
-
-type TagListItem = {
-  id: string;
-  name: string;
+  color: string;
 };
 
 function createEmptyTag(): TagFormItem {
-  return { id: crypto.randomUUID(), name: "" };
+  return { id: crypto.randomUUID(), name: "", color: "#3b82f6" };
 }
 
 const createFields: FieldConfig<TagFormItem>[] = [
   { type: "text", key: "name", label: "Tag name", placeholder: "Tag name" },
+  { type: "color", key: "color", label: "Color" },
 ];
+
+type TagListItem = {
+  id: string;
+  name: string;
+  color: string;
+};
 
 const displayFields: ListItemConfig<TagListItem>[] = [{ key: "name" }];
 
@@ -40,18 +43,20 @@ export default function Tags() {
   const [lastDeletedCount, setLastDeletedCount] = useState<number | null>(null);
 
   async function handleCreate() {
-    const names = items.map((item) => item.name.trim()).filter(Boolean);
-    if (names.length === 0) return;
+    const payload = items
+      .filter((item) => item.name.trim())
+      .map((item) => ({ name: item.name.trim(), color: item.color }));
+
+    if (payload.length === 0) return;
 
     try {
-      await createTagsBulk(names);
+      await createTagsBulk(payload);
       reset();
       invalidate();
     } catch (err) {
       console.error("Failed to create tags:", err);
     }
   }
-
   function toggleMark(id: string) {
     setMarkedIds((prev) => {
       const next = new Set(prev);
@@ -87,6 +92,7 @@ export default function Tags() {
   const listItems: TagListItem[] = tags.map((tag) => ({
     id: String(tag.ID),
     name: tag.name,
+    color: tag.color,
   }));
 
   return (

@@ -1,5 +1,6 @@
 export type CreateTagRequest = {
   name: string;
+  color: string;
 };
 
 export type CreateTagsBulkRequest = {
@@ -13,6 +14,7 @@ export type Tag = {
   DeletedAt: string | null;
   name: string;
   items: unknown[] | null;
+  color: string;
 };
 
 export type Tags = {
@@ -20,9 +22,9 @@ export type Tags = {
 };
 
 export type DeleteTagsBulkRequest = {
-  ids: number[]
-}
+  ids: number[];
+};
 
 export type DeleteTagsBulkResponse = {
-  deleted_count: number
-}
+  deleted_count: number;
+};

@@ -4,15 +4,13 @@ import type {
   Tags,
   DeleteTagsBulkRequest,
   DeleteTagsBulkResponse,
+  CreateTagRequest,
 } from "../dto/tag";
 
 const TagBaseUrl = "tag/";
 
-export function createTagsBulk(names: string[]) {
-  const body: CreateTagsBulkRequest = {
-    tags: names.map((name) => ({ name })),
-  };
-
+export function createTagsBulk(tags: CreateTagRequest[]) {
+  const body: CreateTagsBulkRequest = { tags };
   return apiPost<CreateTagsBulkRequest, Tags>(`${TagBaseUrl}create-bulk`, body);
 }
 

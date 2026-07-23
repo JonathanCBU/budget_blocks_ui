@@ -53,6 +53,28 @@ export function DynamicBulkForm<T extends BaseItem>({
             {fields.map((field) => {
               const value = String(item[field.key] ?? "");
 
+              if (field.type === "color") {
+                return (
+                  <div
+                    key={String(field.key)}
+                    className="flex items-center gap-2"
+                  >
+                    <input
+                      type="color"
+                      value={value || "#000000"}
+                      onChange={(e) =>
+                        onUpdate(item.id, field.key, e.target.value)
+                      }
+                      className="h-9 w-9 cursor-pointer rounded-md border p-0.5"
+                      aria-label={field.label}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {value || "#000000"}
+                    </span>
+                  </div>
+                );
+              }
+
               if (field.type === "date") {
                 const dateValue = value
                   ? new Date(value + "T00:00:00")
